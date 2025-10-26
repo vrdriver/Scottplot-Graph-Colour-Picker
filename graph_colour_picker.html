@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,6 +29,16 @@
         height: 30px;
         border: none;
         padding: 0;
+        vertical-align: middle;
+      }
+      .hex-input {
+        font-family: monospace;
+        width: 70px;
+        border: 1px solid #ccc;
+        padding: 2px 4px;
+        margin-left: 5px;
+        vertical-align: middle;
+        font-size: 12px;
       }
       select {
         width: 100%;
@@ -90,6 +101,21 @@
         background: #6c757d;
         cursor: not-allowed;
       }
+      #exportBtn {
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      #importBtn {
+        background: #17a2b8;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      #importFile {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -142,6 +168,9 @@
         </div>
 
         <div class="custom-section">
+          <button id="exportBtn">Export Custom Themes</button>
+          <button id="importBtn">Import Custom Themes</button>
+          <input type="file" id="importFile" accept=".json" />
           <button id="saveThemeBtn">Save Current as Custom Theme</button>
           <input
             type="text"
@@ -157,40 +186,112 @@
 
         <h3>Manual Color Controls</h3>
         <label
-          >Figure Background: <input type="color" id="figBg" value="#f8f9fa"
+          >Figure Background: <input type="color" id="figBg" value="#f8f9fa" />
+          <input
+            type="text"
+            class="hex-input"
+            id="figBgHex"
+            value="#f8f9fa"
+            readonly
         /></label>
         <label
-          >Data Background: <input type="color" id="dataBg" value="#e3f2fd"
+          >Data Background: <input type="color" id="dataBg" value="#e3f2fd" />
+          <input
+            type="text"
+            class="hex-input"
+            id="dataBgHex"
+            value="#e3f2fd"
+            readonly
         /></label>
         <label
-          >Left Label Color: <input type="color" id="leftLabel" value="#212529"
+          >Left Label Color:
+          <input type="color" id="leftLabel" value="#212529" />
+          <input
+            type="text"
+            class="hex-input"
+            id="leftLabelHex"
+            value="#212529"
+            readonly
         /></label>
         <label
-          >Top Label Color: <input type="color" id="topLabel" value="#212529"
+          >Top Label Color:
+          <input type="color" id="topLabel" value="#212529" />
+          <input
+            type="text"
+            class="hex-input"
+            id="topLabelHex"
+            value="#212529"
+            readonly
         /></label>
         <label
           >Bottom Label Color:
-          <input type="color" id="bottomLabel" value="#212529"
+          <input type="color" id="bottomLabel" value="#212529" />
+          <input
+            type="text"
+            class="hex-input"
+            id="bottomLabelHex"
+            value="#212529"
+            readonly
         /></label>
         <label
-          >Major Tick Color: <input type="color" id="majorTick" value="#495057"
+          >Major Tick Color:
+          <input type="color" id="majorTick" value="#495057" />
+          <input
+            type="text"
+            class="hex-input"
+            id="majorTickHex"
+            value="#495057"
+            readonly
         /></label>
         <label
-          >Minor Tick Color: <input type="color" id="minorTick" value="#adb5bd"
+          >Minor Tick Color:
+          <input type="color" id="minorTick" value="#adb5bd" />
+          <input
+            type="text"
+            class="hex-input"
+            id="minorTickHex"
+            value="#adb5bd"
+            readonly
         /></label>
         <label
           >Frame Line Color:
-          <input type="color" id="frameColor" value="#495057"
+          <input type="color" id="frameColor" value="#495057" />
+          <input
+            type="text"
+            class="hex-input"
+            id="frameColorHex"
+            value="#495057"
+            readonly
         /></label>
         <label
-          >Waveform Color: <input type="color" id="waveColor" value="#00ffff"
+          >Waveform Color:
+          <input type="color" id="waveColor" value="#00ffff" />
+          <input
+            type="text"
+            class="hex-input"
+            id="waveColorHex"
+            value="#00ffff"
+            readonly
         /></label>
         <label
           >Trend Line Color:
-          <input type="color" id="trendColor" value="#ffc107"
+          <input type="color" id="trendColor" value="#ffc107" />
+          <input
+            type="text"
+            class="hex-input"
+            id="trendColorHex"
+            value="#ffc107"
+            readonly
         /></label>
         <label
-          >Major Grid Color: <input type="color" id="gridMajor" value="#dee2e6"
+          >Major Grid Color:
+          <input type="color" id="gridMajor" value="#dee2e6" />
+          <input
+            type="text"
+            class="hex-input"
+            id="gridMajorHex"
+            value="#dee2e6"
+            readonly
         /></label>
       </div>
     </div>
@@ -220,6 +321,9 @@
       const loadDataBtn = document.getElementById("loadDataBtn");
       const deleteThemeBtn = document.getElementById("deleteThemeBtn");
       const plotNameInput = document.getElementById("plotName");
+      const exportBtn = document.getElementById("exportBtn");
+      const importBtn = document.getElementById("importBtn");
+      const importFile = document.getElementById("importFile");
 
       let waveDataCache = { x: [], y: [] }; // Cache for waveform to avoid regen on every draw
 
@@ -251,7 +355,32 @@
           trendColor: "#ffc107",
           gridMajor: "#dee2e6",
         },
-
+        "Night Blue": {
+          figBg: "#2e3440",
+          dataBg: "#3b4252",
+          leftLabel: "#feffff",
+          topLabel: "#feffff",
+          bottomLabel: "#feffff",
+          majorTick: "#feffff",
+          minorTick: "#feffff",
+          frameColor: "#feffff",
+          waveColor: "#069efc",
+          trendColor: "#ffc107",
+          gridMajor: "#4c566a",
+        },
+        "Night Red": {
+          figBg: "#2e3440",
+          dataBg: "#3b4252",
+          leftLabel: "#feffff",
+          topLabel: "#feffff",
+          bottomLabel: "#feffff",
+          majorTick: "#feffff",
+          minorTick: "#feffff",
+          frameColor: "#feffff",
+          waveColor: "#f43d54",
+          trendColor: "#ffc107",
+          gridMajor: "#4c566a",
+        },
         blue: {
           figBg: "#e3f2fd",
           dataBg: "#bbdefb",
@@ -667,38 +796,38 @@
       // Function to generate direct C# code
       function generateDirectCode(colors, plotName) {
         return ` // The entire background Plot
-${plotName}.Plot.FigureBackground.Color = ScottPlot.Color.FromHex("${colors.figBg}");
+      ${plotName}.Plot.FigureBackground.Color = ScottPlot.Color.FromHex("${colors.figBg}");
 
-// Inside the graph
-${plotName}.Plot.DataBackground.Color = ScottPlot.Color.FromHex("${colors.dataBg}");
+      // Inside the graph
+      ${plotName}.Plot.DataBackground.Color = ScottPlot.Color.FromHex("${colors.dataBg}");
 
-// Side Left
-${plotName}.Plot.Axes.Left.Label.ForeColor = ScottPlot.Color.FromHex("${colors.leftLabel}");
+      // Side Left
+      ${plotName}.Plot.Axes.Left.Label.ForeColor = ScottPlot.Color.FromHex("${colors.leftLabel}");
 
-// bottom
-${plotName}.Plot.Axes.Bottom.Label.ForeColor = ScottPlot.Color.FromHex("${colors.bottomLabel}");
+      // bottom
+      ${plotName}.Plot.Axes.Bottom.Label.ForeColor = ScottPlot.Color.FromHex("${colors.bottomLabel}");
 
-// top heading
-${plotName}.Plot.Axes.Title.Label.ForeColor = ScottPlot.Color.FromHex("${colors.topLabel}");
+      // top heading
+      ${plotName}.Plot.Axes.Title.Label.ForeColor = ScottPlot.Color.FromHex("${colors.topLabel}");
 
-// Major Ticks
-${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = ScottPlot.Color.FromHex("${colors.majorTick}");
+      // Major Ticks
+      ${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = ScottPlot.Color.FromHex("${colors.majorTick}");
 
-// Minor Ticks
-${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = ScottPlot.Color.FromHex("${colors.minorTick}");
+      // Minor Ticks
+      ${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = ScottPlot.Color.FromHex("${colors.minorTick}");
 
-// Bottom Border of graph
-${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = ScottPlot.Color.FromHex("${colors.frameColor}");
+      // Bottom Border of graph
+      ${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = ScottPlot.Color.FromHex("${colors.frameColor}");
 
-// Major Grid
-${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMajor}");
+      // Major Grid
+      ${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMajor}");
 
-// Example for waveform (e.g., Signal):
-// var myWave = ${plotName}.Plot.Add.Signal(yWaveData);
-// myWave.Color = ScottPlot.Color.FromHex("${colors.waveColor}");
-// Example for trend line (e.g., Line):
-// var myTrend = ${plotName}.Plot.Add.Line(xTrend, yTrend);
-// myTrend.Color = ScottPlot.Color.FromHex("${colors.trendColor}");`;
+      // Example for waveform (e.g., Signal):
+      // var myWave = ${plotName}.Plot.Add.Signal(yWaveData);
+      // myWave.Color = ScottPlot.Color.FromHex("${colors.waveColor}");
+      // Example for trend line (e.g., Line):
+      // var myTrend = ${plotName}.Plot.Add.Line(xTrend, yTrend);
+      // myTrend.Color = ScottPlot.Color.FromHex("${colors.trendColor}");`;
       }
 
       // Function to generate C# code
@@ -760,6 +889,45 @@ ${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMaj
         }
         codeOutput.value = code;
       }
+
+      // Export custom themes
+      exportBtn.addEventListener("click", () => {
+        const dataStr = JSON.stringify(customThemes, null, 2);
+        const dataUri =
+          "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+        const exportFileDefaultName = "scottplot-custom-themes.json";
+        const linkElement = document.createElement("a");
+        linkElement.setAttribute("href", dataUri);
+        linkElement.setAttribute("download", exportFileDefaultName);
+        linkElement.click();
+      });
+
+      // Import custom themes
+      importBtn.addEventListener("click", () => {
+        importFile.click();
+      });
+      importFile.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const imported = JSON.parse(e.target.result);
+            if (confirm("Replace existing custom themes?")) {
+              customThemes = imported;
+            } else {
+              Object.assign(customThemes, imported);
+            }
+            localStorage.setItem("customThemes", JSON.stringify(customThemes));
+            populateDropdown();
+            updateDeleteButtonState();
+            alert("Themes imported!");
+          } catch (err) {
+            alert("Invalid JSON file.");
+          }
+        };
+        reader.readAsText(file);
+      });
 
       // Populate dropdown with predefined, custom, and palettes
       function populateDropdown() {
@@ -878,7 +1046,10 @@ ${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMaj
 
       // Event listeners
       colorInputs.forEach((id) => {
-        document.getElementById(id).addEventListener("input", () => {
+        const colorEl = document.getElementById(id);
+        const hexEl = document.getElementById(id + "Hex");
+        colorEl.addEventListener("input", () => {
+          hexEl.value = colorEl.value;
           draw();
           generateCode();
         });
@@ -891,7 +1062,11 @@ ${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMaj
         if (!selected) return; // Skip separator
         const theme = getThemeColors(selected);
         Object.keys(theme).forEach((key) => {
-          document.getElementById(key).value = theme[key];
+          const colorEl = document.getElementById(key);
+          const hexEl = document.getElementById(key + "Hex");
+          const colorValue = theme[key];
+          colorEl.value = colorValue;
+          hexEl.value = colorValue;
         });
         updateThemePreview(selected);
         updateDeleteButtonState();
@@ -905,49 +1080,49 @@ ${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMaj
         let labelTextColor = (color) =>
           color === "#000000" || color === "#000" ? "#ffffff" : "#000000";
         themePreview.innerHTML = `
-                      <strong>${displayName}:</strong><br>
-                      <div style="margin-top: 5px; font-size: 11px;">
-                          Fig Bg: <span class="swatch" style="background-color: ${
-                            theme.figBg
-                          };"></span><br>
-                          Data Bg: <span class="swatch" style="background-color: ${
-                            theme.dataBg
-                          };"></span><br>
-                          Left Label: <span class="text-swatch" style="color: ${
-                            theme.leftLabel
-                          }; background-color: ${labelTextColor(
+                            <strong>${displayName}:</strong><br>
+                            <div style="margin-top: 5px; font-size: 11px;">
+                                Fig Bg: <span class="swatch" style="background-color: ${
+                                  theme.figBg
+                                };"></span><br>
+                                Data Bg: <span class="swatch" style="background-color: ${
+                                  theme.dataBg
+                                };"></span><br>
+                                Left Label: <span class="text-swatch" style="color: ${
+                                  theme.leftLabel
+                                }; background-color: ${labelTextColor(
           theme.leftLabel
         )};">L</span><br>
-                          Top Label: <span class="text-swatch" style="color: ${
-                            theme.topLabel
-                          }; background-color: ${labelTextColor(
+                                Top Label: <span class="text-swatch" style="color: ${
+                                  theme.topLabel
+                                }; background-color: ${labelTextColor(
           theme.topLabel
         )};">T</span><br>
-                          Bottom Label: <span class="text-swatch" style="color: ${
-                            theme.bottomLabel
-                          }; background-color: ${labelTextColor(
+                                Bottom Label: <span class="text-swatch" style="color: ${
+                                  theme.bottomLabel
+                                }; background-color: ${labelTextColor(
           theme.bottomLabel
         )};">B</span><br>
-                          Major Ticks: <span class="line-swatch" style="border-bottom-color: ${
-                            theme.majorTick
-                          };"></span><br>
-                          Minor Ticks: <span class="line-swatch" style="border-bottom-color: ${
-                            theme.minorTick
-                          };"></span><br>
-                          Frame Line: <span class="line-swatch" style="border-bottom-color: ${
-                            theme.frameColor
-                          }; width: 30px;"></span><br>
-                          Waveform: <span class="line-swatch" style="border-bottom-color: ${
-                            theme.waveColor
-                          }; width: 30px;"></span><br>
-                          Trend Line: <span class="line-swatch" style="border-bottom-color: ${
-                            theme.trendColor
-                          }; width: 30px;"></span><br>
-                          Major Grid: <span class="swatch" style="background-color: ${
-                            theme.gridMajor
-                          }; opacity: 0.5;"></span>
-                      </div>
-                  `;
+                                Major Ticks: <span class="line-swatch" style="border-bottom-color: ${
+                                  theme.majorTick
+                                };"></span><br>
+                                Minor Ticks: <span class="line-swatch" style="border-bottom-color: ${
+                                  theme.minorTick
+                                };"></span><br>
+                                Frame Line: <span class="line-swatch" style="border-bottom-color: ${
+                                  theme.frameColor
+                                }; width: 30px;"></span><br>
+                                Waveform: <span class="line-swatch" style="border-bottom-color: ${
+                                  theme.waveColor
+                                }; width: 30px;"></span><br>
+                                Trend Line: <span class="line-swatch" style="border-bottom-color: ${
+                                  theme.trendColor
+                                }; width: 30px;"></span><br>
+                                Major Grid: <span class="swatch" style="background-color: ${
+                                  theme.gridMajor
+                                }; opacity: 0.5;"></span>
+                            </div>
+                        `;
       }
 
       // Generate ultra-detailed waveform data (tighter: 20k+ points, finer oscillations)
@@ -1158,24 +1333,24 @@ ${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMaj
         ctx.stroke();
 
         /*
-        // Intro point (dashed vert + dot on trend)
-        const introX = 4,
-          introYTrend =
-            trendData.y[0] - (trendData.y[0] - trendData.y[1]) * (introX / 10);
-        const introPx = plotX + (introX - xMin) * xScale,
-          introPy = plotY + plotHeight - (introYTrend - yMin) * yScale;
-        ctx.strokeStyle = trendColor;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(introPx, introPy);
-        ctx.lineTo(introPx, plotY + plotHeight);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.arc(introPx, introPy, 6, 0, 2 * Math.PI);
-        ctx.fillStyle = trendColor;
-        ctx.fill();*/
+              // Intro point (dashed vert + dot on trend)
+              const introX = 4,
+                introYTrend =
+                  trendData.y[0] - (trendData.y[0] - trendData.y[1]) * (introX / 10);
+              const introPx = plotX + (introX - xMin) * xScale,
+                introPy = plotY + plotHeight - (introYTrend - yMin) * yScale;
+              ctx.strokeStyle = trendColor;
+              ctx.lineWidth = 2;
+              ctx.setLineDash([5, 5]);
+              ctx.beginPath();
+              ctx.moveTo(introPx, introPy);
+              ctx.lineTo(introPx, plotY + plotHeight);
+              ctx.stroke();
+              ctx.setLineDash([]);
+              ctx.beginPath();
+              ctx.arc(introPx, introPy, 6, 0, 2 * Math.PI);
+              ctx.fillStyle = trendColor;
+              ctx.fill();*/
 
         // End marker (vert line + label)
         const endX = 10,
@@ -1205,3 +1380,4 @@ ${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMaj
     </script>
   </body>
 </html>
+```
