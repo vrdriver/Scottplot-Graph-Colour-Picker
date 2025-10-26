@@ -21,11 +21,9 @@ Built iteratively through conversations, this tool streamlines theme prototyping
 - **Persistence**: Custom themes stored in browser localStorage.
 - **Extras**: Plot control name customization (e.g., `formsPlot1` → `myPlot`), theme previews, and example data loading.
 
-## Screenshots
-*(Add your own: e.g., full UI with Dark theme applied and code output visible.)*
-
-- ![UI Overview](screenshots/ui-overview.png)
-- ![Custom Theme](screenshots/custom-theme.png)
+## Screenshots 
+<img width="1154" height="1210" alt="Screenshot 2025-10-26 at 15 22 51" src="https://github.com/user-attachments/assets/136fb685-d064-48fa-a40d-719b5c01a6c9" />
+ 
 
 ## How to Use
 1. **Open the App**: Save the `index.html` file and open it in a modern browser (Chrome/Firefox recommended).
