@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-This is an interactive web-based tool designed as a visual aid for developers working with ScottPlot (a popular .NET plotting library). It recreates a sample ScottPlot graph (featuring a detailed waveform with trends, markers, and grids) and allows users to experiment with color themes, palettes, and manual color adjustments in real-time. Changes are instantly previewed on the canvas, and the tool generates ready-to-use C# code snippets for applying the selected styles directly in ScottPlot projects. 
+This is an interactive web-based tool designed as a visual aid for developers working with ScottPlot (a popular .NET plotting library). 
 
 Key aspects:
 - **Visual Fidelity**: Mimics ScottPlot's rendering with backgrounds, axes, ticks, labels, grids, and plottables (e.g., signals and lines).
@@ -53,4 +53,4 @@ MIT License – feel free to use/modify/share.
 
 ---
 
-*Built with ❤️ using HTML/JS for ScottPlot enthusiasts. Questions? Open an issue.*
+*Built (mostly with AI - yeah, I'm not afraid to admit it). It uses HTML/JS for ScottPlot enthusiasts. Questions? Open an issue.*
