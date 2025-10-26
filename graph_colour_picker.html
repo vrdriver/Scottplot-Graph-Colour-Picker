@@ -667,38 +667,38 @@
       // Function to generate direct C# code
       function generateDirectCode(colors, plotName) {
         return ` // The entire background Plot
-      ${plotName}.Plot.FigureBackground.Color = new ScottPlot.Colors.Color("${colors.figBg}");
+${plotName}.Plot.FigureBackground.Color = new ScottPlot.Colors.Color("${colors.figBg}");
 
-      // Inside the graph
-      ${plotName}.Plot.DataBackground.Color = new ScottPlot.Colors.Color("${colors.dataBg}");
+// Inside the graph
+${plotName}.Plot.DataBackground.Color = new ScottPlot.Colors.Color("${colors.dataBg}");
 
-      // Side Left
-      ${plotName}.Plot.Axes.Left.Label.ForeColor = new ScottPlot.Colors.Color("${colors.leftLabel}");
+// Side Left
+${plotName}.Plot.Axes.Left.Label.ForeColor = new ScottPlot.Colors.Color("${colors.leftLabel}");
 
-      // bottom
-      ${plotName}.Plot.Axes.Bottom.Label.ForeColor = new ScottPlot.Colors.Color("${colors.bottomLabel}");
+// bottom
+${plotName}.Plot.Axes.Bottom.Label.ForeColor = new ScottPlot.Colors.Color("${colors.bottomLabel}");
 
-      // top heading
-      ${plotName}.Plot.Axes.Title.Label.ForeColor = new ScottPlot.Colors.Color("${colors.topLabel}");
+// top heading
+${plotName}.Plot.Axes.Title.Label.ForeColor = new ScottPlot.Colors.Color("${colors.topLabel}");
 
-      // Major Ticks
-      ${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = new ScottPlot.Colors.Color("${colors.majorTick}");
+// Major Ticks
+${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = new ScottPlot.Colors.Color("${colors.majorTick}");
 
-      // Minor Ticks
-      ${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = new ScottPlot.Colors.Color("${colors.minorTick}");
+// Minor Ticks
+${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = new ScottPlot.Colors.Color("${colors.minorTick}");
 
-      // Bottom Border of graph
-      ${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = new ScottPlot.Colors.Color("${colors.frameColor}");
+// Bottom Border of graph
+${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = new ScottPlot.Colors.Color("${colors.frameColor}");
 
-      // Major Grid
-      ${plotName}.Plot.Grid.MajorLineColor = new ScottPlot.Colors.Color("${colors.gridMajor}");
+// Major Grid
+${plotName}.Plot.Grid.MajorLineColor = new ScottPlot.Colors.Color("${colors.gridMajor}");
 
-      // Example for waveform (e.g., Signal):
-      // var myWave = ${plotName}.Plot.Add.Signal(yWaveData);
-      // myWave.Color = new ScottPlot.Colors.Color("${colors.waveColor}");
-      // Example for trend line (e.g., Line):
-      // var myTrend = ${plotName}.Plot.Add.Line(xTrend, yTrend);
-      // myTrend.Color = new ScottPlot.Colors.Color("${colors.trendColor}");`;
+// Example for waveform (e.g., Signal):
+// var myWave = ${plotName}.Plot.Add.Signal(yWaveData);
+// myWave.Color = new ScottPlot.Colors.Color("${colors.waveColor}");
+// Example for trend line (e.g., Line):
+// var myTrend = ${plotName}.Plot.Add.Line(xTrend, yTrend);
+// myTrend.Color = new ScottPlot.Colors.Color("${colors.trendColor}");`;
       }
 
       // Function to generate C# code
@@ -1156,7 +1156,7 @@
           plotY + plotHeight - (trendData.y[1] - yMin) * yScale
         );
         ctx.stroke();
-        
+
         /*
         // Intro point (dashed vert + dot on trend)
         const introX = 4,
