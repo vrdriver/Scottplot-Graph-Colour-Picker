@@ -22,8 +22,8 @@ Built iteratively through conversations, this tool streamlines theme prototyping
 - **Extras**: Plot control name customization (e.g., `formsPlot1` → `myPlot`), theme previews, and example data loading.
 
 ## Screenshots 
-<img width="1154" height="1210" alt="Screenshot 2025-10-26 at 15 22 51" src="https://github.com/user-attachments/assets/136fb685-d064-48fa-a40d-719b5c01a6c9" />
- 
+<img width="1137" height="1279" alt="Screenshot 2025-10-26 at 15 57 34" src="https://github.com/user-attachments/assets/943f5002-362c-46c0-8848-33e9f5956624" />
+
 
 ## How to Use
 1. **Open the App**: Save the `index.html` file and open it in a modern browser (Chrome/Firefox recommended).
