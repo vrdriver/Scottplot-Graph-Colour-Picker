@@ -667,38 +667,38 @@
       // Function to generate direct C# code
       function generateDirectCode(colors, plotName) {
         return ` // The entire background Plot
-${plotName}.Plot.FigureBackground.Color = new ScottPlot.Colors.Color("${colors.figBg}");
+${plotName}.Plot.FigureBackground.Color = ScottPlot.Color.FromHex("${colors.figBg}");
 
 // Inside the graph
-${plotName}.Plot.DataBackground.Color = new ScottPlot.Colors.Color("${colors.dataBg}");
+${plotName}.Plot.DataBackground.Color = ScottPlot.Color.FromHex("${colors.dataBg}");
 
 // Side Left
-${plotName}.Plot.Axes.Left.Label.ForeColor = new ScottPlot.Colors.Color("${colors.leftLabel}");
+${plotName}.Plot.Axes.Left.Label.ForeColor = ScottPlot.Color.FromHex("${colors.leftLabel}");
 
 // bottom
-${plotName}.Plot.Axes.Bottom.Label.ForeColor = new ScottPlot.Colors.Color("${colors.bottomLabel}");
+${plotName}.Plot.Axes.Bottom.Label.ForeColor = ScottPlot.Color.FromHex("${colors.bottomLabel}");
 
 // top heading
-${plotName}.Plot.Axes.Title.Label.ForeColor = new ScottPlot.Colors.Color("${colors.topLabel}");
+${plotName}.Plot.Axes.Title.Label.ForeColor = ScottPlot.Color.FromHex("${colors.topLabel}");
 
 // Major Ticks
-${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = new ScottPlot.Colors.Color("${colors.majorTick}");
+${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = ScottPlot.Color.FromHex("${colors.majorTick}");
 
 // Minor Ticks
-${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = new ScottPlot.Colors.Color("${colors.minorTick}");
+${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = ScottPlot.Color.FromHex("${colors.minorTick}");
 
 // Bottom Border of graph
-${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = new ScottPlot.Colors.Color("${colors.frameColor}");
+${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = ScottPlot.Color.FromHex("${colors.frameColor}");
 
 // Major Grid
-${plotName}.Plot.Grid.MajorLineColor = new ScottPlot.Colors.Color("${colors.gridMajor}");
+${plotName}.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("${colors.gridMajor}");
 
 // Example for waveform (e.g., Signal):
 // var myWave = ${plotName}.Plot.Add.Signal(yWaveData);
-// myWave.Color = new ScottPlot.Colors.Color("${colors.waveColor}");
+// myWave.Color = ScottPlot.Color.FromHex("${colors.waveColor}");
 // Example for trend line (e.g., Line):
 // var myTrend = ${plotName}.Plot.Add.Line(xTrend, yTrend);
-// myTrend.Color = new ScottPlot.Colors.Color("${colors.trendColor}");`;
+// myTrend.Color = ScottPlot.Color.FromHex("${colors.trendColor}");`;
       }
 
       // Function to generate C# code
