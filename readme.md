@@ -1,4 +1,4 @@
-# Ultimate Interactive Graph Color Picker - ScottPlot Recreation
+# Interactive Graph Color Picker - ScottPlot Recreation
 
 ## Project Summary
 
