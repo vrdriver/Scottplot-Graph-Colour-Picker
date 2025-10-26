@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultimate Graph Color Picker - ScottPlot Recreation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #plot-container {
+        border: 1px solid #ccc;
+        display: inline-block;
+      }
+      #controls {
+        vertical-align: top;
+        margin-left: 20px;
+        display: inline-block;
+        width: 280px;
+      }
+      label {
+        display: block;
+        margin: 10px 0;
+      }
+      input[type="color"] {
+        width: 50px;
+        height: 30px;
+        border: none;
+        padding: 0;
+      }
+      select {
+        width: 100%;
+        padding: 5px;
+        margin-bottom: 10px;
+      }
+      .theme-preview {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        background: #f9f9f9;
+        font-size: 12px;
+      }
+      .swatch {
+        width: 20px;
+        height: 10px;
+        display: inline-block;
+        margin-right: 5px;
+      }
+      .text-swatch {
+        padding: 2px 4px;
+        font-size: 10px;
+        margin-right: 5px;
+        background: white;
+      }
+      .line-swatch {
+        width: 20px;
+        height: 2px;
+        display: inline-block;
+        margin-right: 5px;
+        border-bottom: 2px solid;
+      }
+      #codeOutput {
+        width: 100%;
+        height: 200px;
+        font-family: monospace;
+        margin-top: 10px;
+      }
+      button {
+        margin: 5px 0;
+        padding: 5px 10px;
+        width: 100%;
+      }
+      .custom-section {
+        margin-top: 10px;
+      }
+      #loadDataBtn {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      #deleteThemeBtn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      #deleteThemeBtn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Ultimate Interactive Graph Color Picker</h1>
+    <p>
+      Full ScottPlot recreation: detailed waveform, trends, markers, themes,
+      palettes, customs, and C# export.
+    </p>
+
+    <div>
+      <div id="plot-container">
+        <canvas
+          id="plot"
+          width="800"
+          height="600"
+          style="display: block"
+        ></canvas>
+
+        <h3>Plot Control Name</h3>
+        <input
+          type="text"
+          id="plotName"
+          value="formsPlot1"
+          placeholder="Enter plot control name (e.g., formsPlot1)"
+          style="width: 90%; margin: 5px 0; padding: 5px"
+        />
+
+        <h3>Generated C# Code</h3>
+        <textarea
+          id="codeOutput"
+          readonly
+          style="width: 90%; margin: 5px 0; padding: 5px"
+        ></textarea>
+      </div>
+      <div id="controls">
+        <h3>Theme Selector</h3>
+        <select id="themeSelect">
+          <option value="Dark">Dark (Default)</option>
+        </select>
+
+        <h3>Graph Density</h3>
+        <select id="densitySelect">
+          <option value="dense">Dense (20k points)</option>
+          <option value="medium">Medium (5k points)</option>
+          <option value="sparse">Sparse (500 points)</option>
+        </select>
+
+        <div class="theme-preview" id="themePreview">
+          Select a theme to preview colors...
+        </div>
+
+        <div class="custom-section">
+          <button id="saveThemeBtn">Save Current as Custom Theme</button>
+          <input
+            type="text"
+            id="customName"
+            placeholder="Enter theme name"
+            style="width: 100%; margin: 5px 0"
+          />
+          <button id="deleteThemeBtn" disabled>
+            Delete Selected Custom Theme
+          </button>
+          <button id="loadDataBtn">Load Example Data</button>
+        </div>
+
+        <h3>Manual Color Controls</h3>
+        <label
+          >Figure Background: <input type="color" id="figBg" value="#f8f9fa"
+        /></label>
+        <label
+          >Data Background: <input type="color" id="dataBg" value="#e3f2fd"
+        /></label>
+        <label
+          >Left Label Color: <input type="color" id="leftLabel" value="#212529"
+        /></label>
+        <label
+          >Top Label Color: <input type="color" id="topLabel" value="#212529"
+        /></label>
+        <label
+          >Bottom Label Color:
+          <input type="color" id="bottomLabel" value="#212529"
+        /></label>
+        <label
+          >Major Tick Color: <input type="color" id="majorTick" value="#495057"
+        /></label>
+        <label
+          >Minor Tick Color: <input type="color" id="minorTick" value="#adb5bd"
+        /></label>
+        <label
+          >Frame Line Color:
+          <input type="color" id="frameColor" value="#495057"
+        /></label>
+        <label
+          >Waveform Color: <input type="color" id="waveColor" value="#00ffff"
+        /></label>
+        <label
+          >Trend Line Color:
+          <input type="color" id="trendColor" value="#ffc107"
+        /></label>
+        <label
+          >Major Grid Color: <input type="color" id="gridMajor" value="#dee2e6"
+        /></label>
+      </div>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("plot");
+      const ctx = canvas.getContext("2d");
+      const colorInputs = [
+        "figBg",
+        "dataBg",
+        "leftLabel",
+        "topLabel",
+        "bottomLabel",
+        "majorTick",
+        "minorTick",
+        "frameColor",
+        "waveColor",
+        "trendColor",
+        "gridMajor",
+      ];
+      const themeSelect = document.getElementById("themeSelect");
+      const densitySelect = document.getElementById("densitySelect");
+      const themePreview = document.getElementById("themePreview");
+      const codeOutput = document.getElementById("codeOutput");
+      const saveThemeBtn = document.getElementById("saveThemeBtn");
+      const customName = document.getElementById("customName");
+      const loadDataBtn = document.getElementById("loadDataBtn");
+      const deleteThemeBtn = document.getElementById("deleteThemeBtn");
+      const plotNameInput = document.getElementById("plotName");
+
+      let waveDataCache = { x: [], y: [] }; // Cache for waveform to avoid regen on every draw
+
+      // Predefined themes (updated Audition to match provided JSON)
+      const predefinedThemes = {
+        Dark: {
+          figBg: "#212529",
+          dataBg: "#343a40",
+          leftLabel: "#f8f9fa",
+          topLabel: "#f8f9fa",
+          bottomLabel: "#f8f9fa",
+          majorTick: "#adb5bd",
+          minorTick: "#6c757d",
+          frameColor: "#adb5bd",
+          waveColor: "#00ffff",
+          trendColor: "#ffc107",
+          gridMajor: "#495057",
+        },
+        light: {
+          figBg: "#f8f9fa",
+          dataBg: "#e3f2fd",
+          leftLabel: "#212529",
+          topLabel: "#212529",
+          bottomLabel: "#212529",
+          majorTick: "#495057",
+          minorTick: "#adb5bd",
+          frameColor: "#495057",
+          waveColor: "#00ffff",
+          trendColor: "#ffc107",
+          gridMajor: "#dee2e6",
+        },
+
+        blue: {
+          figBg: "#e3f2fd",
+          dataBg: "#bbdefb",
+          leftLabel: "#0d47a1",
+          topLabel: "#0d47a1",
+          bottomLabel: "#0d47a1",
+          majorTick: "#1565c0",
+          minorTick: "#42a5f5",
+          frameColor: "#1565c0",
+          waveColor: "#00bfff",
+          trendColor: "#ffd700",
+          gridMajor: "#90caf9",
+        },
+        green: {
+          figBg: "#e8f5e8",
+          dataBg: "#c8e6c9",
+          leftLabel: "#2e7d32",
+          topLabel: "#2e7d32",
+          bottomLabel: "#2e7d32",
+          majorTick: "#388e3c",
+          minorTick: "#66bb6a",
+          frameColor: "#388e3c",
+          waveColor: "#00ff7f",
+          trendColor: "#ffd700",
+          gridMajor: "#a5d6a7",
+        },
+        highcontrast: {
+          figBg: "#ffffff",
+          dataBg: "#000000",
+          leftLabel: "#ff0000",
+          topLabel: "#ff0000",
+          bottomLabel: "#000000",
+          majorTick: "#000000",
+          minorTick: "#808080",
+          frameColor: "#000000",
+          waveColor: "#ff0000",
+          trendColor: "#ffff00",
+          gridMajor: "#c0c0c0",
+        },
+        Audactiy: {
+          figBg: "#dde6fd",
+          dataBg: "#f0f2fd",
+          leftLabel: "#13141a",
+          topLabel: "#121219",
+          bottomLabel: "#000000",
+          majorTick: "#808080",
+          minorTick: "#606060",
+          frameColor: "#13131a",
+          waveColor: "#6464cc",
+          trendColor: "#6a7bdd",
+          gridMajor: "#eff1fc",
+        },
+
+        Audition: {
+          figBg: "#000000",
+          dataBg: "#000000",
+          leftLabel: "#ececeb",
+          topLabel: "#ececeb",
+          bottomLabel: "#e0e0e0",
+          majorTick: "#ececeb",
+          minorTick: "#cccccc",
+          frameColor: "#ececeb",
+          waveColor: "#4bf2a6",
+          trendColor: "#00ff00",
+          gridMajor: "#013400",
+        },
+      };
+
+      // Load custom themes from localStorage
+      let customThemes = JSON.parse(localStorage.getItem("customThemes")) || {};
+
+      // ScottPlot Palettes (full list as before)
+      const scottPlotPalettes = {
+        category_10: [
+          "#1F77B4",
+          "#FF7F0E",
+          "#2CA02C",
+          "#D62728",
+          "#9467BD",
+          "#8C564B",
+          "#E377C2",
+          "#7F7F7F",
+          "#BCBD22",
+          "#17BECF",
+        ],
+        category_20: [
+          "#1F77B4",
+          "#AEC7E8",
+          "#FF7F0E",
+          "#FFBB78",
+          "#2CA02C",
+          "#98DF8A",
+          "#D62728",
+          "#FF9896",
+          "#9467BD",
+          "#C5B0D5",
+          "#8C564B",
+          "#C49C94",
+          "#E377C2",
+          "#F7B6D2",
+          "#7F7F7F",
+          "#C7C7C7",
+          "#BCBD22",
+          "#DBDB8D",
+          "#17BECF",
+          "#9EDAE5",
+        ],
+        amber: [
+          "#FF6F00",
+          "#FF8F00",
+          "#FFA000",
+          "#FFB300",
+          "#FFC107",
+          "#FFC107",
+          "#FFC107",
+          "#FFC107",
+        ],
+        aurora: [
+          "#BF616A",
+          "#D08770",
+          "#EBCB8B",
+          "#A3BE8C",
+          "#B48EAD",
+          "#B48EAD",
+          "#B48EAD",
+          "#B48EAD",
+        ],
+        building: [
+          "#FF6F00",
+          "#FF8F00",
+          "#FFA000",
+          "#FFB300",
+          "#FFC107",
+          "#FFC107",
+          "#FFC107",
+          "#FFC107",
+        ],
+        colorblind_friendly: [
+          "#000000",
+          "#E69F00",
+          "#56B4E9",
+          "#009E73",
+          "#F0E442",
+          "#0072B2",
+          "#D55E00",
+          "#CC79A7",
+        ],
+        colorblind_friendly_dark: [
+          "#FFFFFF",
+          "#1960FF",
+          "#A94B16",
+          "#FF618C",
+          "#0F1BBD",
+          "#FF8D4D",
+          "#2AA1FF",
+          "#338658",
+        ],
+        dark: [
+          "#1B9E77",
+          "#D95F02",
+          "#7570B3",
+          "#E7298A",
+          "#66A61E",
+          "#E6AB02",
+          "#A6761D",
+          "#666666",
+        ],
+        dark_pastel: [
+          "#66C2A5",
+          "#FC8D62",
+          "#8DA0CB",
+          "#E78AC3",
+          "#A6D854",
+          "#FFD92F",
+          "#E5C494",
+          "#B3B3B3",
+        ],
+        frost: [
+          "#8FBCBB",
+          "#88C0D0",
+          "#81A1C1",
+          "#5E81AC",
+          "#5E81AC",
+          "#5E81AC",
+          "#5E81AC",
+          "#5E81AC",
+        ],
+        light_ocean: [
+          "#DFEDD9",
+          "#DBECDC",
+          "#DBEDE4",
+          "#DAEEEC",
+          "#DAEEF3",
+          "#DAE6F2",
+          "#DADEF1",
+          "#DEDAEE",
+          "#E5DAED",
+        ],
+        light_spectrum: [
+          "#FCE5E6",
+          "#FFF8E7",
+          "#FFFCE8",
+          "#EFF5E4",
+          "#E7F2E6",
+          "#DDF0F5",
+          "#E6F2FC",
+          "#E6EAF7",
+          "#EEE0F0",
+        ],
+        microcharts: [
+          "#266489",
+          "#68B9C0",
+          "#90D585",
+          "#F3C151",
+          "#F37F64",
+          "#424856",
+          "#8F97A4",
+          "#DAC096",
+          "#76846E",
+          "#DABFAF",
+          "#A65B69",
+          "#97A69D",
+        ],
+        nero: [
+          "#013A20",
+          "#478C5C",
+          "#94C973",
+          "#BACC81",
+          "#CDD193",
+          "#CDD193",
+          "#CDD193",
+          "#CDD193",
+        ],
+        nord: [
+          "#BF616A",
+          "#A3BE8C",
+          "#EBCB8B",
+          "#81A1C1",
+          "#B48EAD",
+          "#88C0D0",
+          "#E5E9F0",
+          "#E5E9F0",
+        ],
+        normal: [
+          "#4053D3",
+          "#DDB310",
+          "#B51D14",
+          "#00BEFF",
+          "#FB49B0",
+          "#00B25D",
+          "#CACACA",
+        ],
+        one_half: [
+          "#383A42",
+          "#E4564A",
+          "#50A14F",
+          "#C18402",
+          "#0084BC",
+          "#A626A4",
+          "#0897B3",
+          "#0897B3",
+        ],
+        one_half_dark: [
+          "#E06C75",
+          "#98C379",
+          "#E5C07B",
+          "#61AFF0",
+          "#C678DD",
+          "#56B6C2",
+          "#DCDFE4",
+          "#DCDFE4",
+        ],
+        pastel_wheel: [
+          "#F8C5C7",
+          "#FADEC3",
+          "#FBF6C4",
+          "#E1ECC8",
+          "#D7E8CB",
+          "#DAEBD7",
+          "#D9EEF3",
+          "#CADBED",
+          "#C7D2E6",
+          "#D4D1E5",
+          "#E8D3E6",
+          "#F8C7DE",
+        ],
+        penumbra: [
+          "#CB7459",
+          "#A38F2D",
+          "#46A473",
+          "#00A0BE",
+          "#7E87D6",
+          "#BD72A8",
+          "#BD72A8",
+          "#BD72A8",
+        ],
+        polar_night: [
+          "#2E3440",
+          "#3B4252",
+          "#434C5E",
+          "#4C566A",
+          "#4C566A",
+          "#4C566A",
+          "#4C566A",
+          "#4C566A",
+        ],
+        redness: [
+          "#FF0000",
+          "#FF4F00",
+          "#FFA900",
+          "#900303",
+          "#FF8181",
+          "#FF8181",
+          "#FF8181",
+          "#FF8181",
+        ],
+        snow_storm: [
+          "#D8DEE9",
+          "#E5E9F0",
+          "#ECEFF4",
+          "#ECEFF4",
+          "#ECEFF4",
+          "#ECEFF4",
+          "#ECEFF4",
+          "#ECEFF4",
+        ],
+        summer_splash: [
+          "#05445E",
+          "#189AB4",
+          "#75E6DA",
+          "#D4F1F4",
+          "#D4F1F4",
+          "#D4F1F4",
+          "#D4F1F4",
+          "#D4F1F4",
+        ],
+        tsitsulin: [
+          "#EBAC23",
+          "#B80058",
+          "#008CF9",
+          "#006E00",
+          "#00BBAD",
+          "#D163E6",
+          "#B24502",
+          "#FF9287",
+          "#5954D6",
+          "#00C6F8",
+          "#878500",
+          "#00A76C",
+          "#F6DA9C",
+          "#FF5CAA",
+          "#8ACCFF",
+          "#4BFF4B",
+          "#6EFFF4",
+          "#EDC1F5",
+          "#FEAE7C",
+          "#FFC8C3",
+          "#BDBBEF",
+          "#BDF2FF",
+          "#FFFC43",
+          "#65FFC8",
+          "#AAAAAA",
+        ],
+      };
+
+      // All themes: predefined + custom
+      function getAllThemes() {
+        return { ...predefinedThemes, ...customThemes };
+      }
+
+      // Function to get display name
+      function getDisplayName(key) {
+        return key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+      }
+
+      // Function to get theme colors for a selected value
+      function getThemeColors(selected) {
+        const allThemes = getAllThemes();
+        if (allThemes[selected]) {
+          return allThemes[selected];
+        } else {
+          const colors = scottPlotPalettes[selected] || [];
+          return {
+            figBg: colors[0] ?? "#f8f9fa",
+            dataBg: colors[1] ?? "#e3f2fd",
+            leftLabel: colors[2] ?? "#212529",
+            topLabel: colors[4] ?? "#212529",
+            bottomLabel: colors[3] ?? "#212529",
+            majorTick: colors[5] ?? "#495057",
+            minorTick: colors[6] ?? "#adb5bd",
+            frameColor: colors[7] ?? colors[5] ?? "#495057",
+            waveColor: colors[8] ?? "#00ffff",
+            trendColor: colors[9] ?? "#ffc107",
+            gridMajor: colors[8] ?? colors[7] ?? colors[6] ?? "#dee2e6",
+          };
+        }
+      }
+
+      // Function to get num points based on density
+      function getNumPoints() {
+        switch (densitySelect.value) {
+          case "dense":
+            return 20000;
+          case "medium":
+            return 5000;
+          case "sparse":
+            return 500;
+          default:
+            return 20000;
+        }
+      }
+
+      // Function to generate direct C# code
+      function generateDirectCode(colors, plotName) {
+        return ` // The entire background Plot
+      ${plotName}.Plot.FigureBackground.Color = new ScottPlot.Colors.Color("${colors.figBg}");
+
+      // Inside the graph
+      ${plotName}.Plot.DataBackground.Color = new ScottPlot.Colors.Color("${colors.dataBg}");
+
+      // Side Left
+      ${plotName}.Plot.Axes.Left.Label.ForeColor = new ScottPlot.Colors.Color("${colors.leftLabel}");
+
+      // bottom
+      ${plotName}.Plot.Axes.Bottom.Label.ForeColor = new ScottPlot.Colors.Color("${colors.bottomLabel}");
+
+      // top heading
+      ${plotName}.Plot.Axes.Title.Label.ForeColor = new ScottPlot.Colors.Color("${colors.topLabel}");
+
+      // Major Ticks
+      ${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = new ScottPlot.Colors.Color("${colors.majorTick}");
+
+      // Minor Ticks
+      ${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = new ScottPlot.Colors.Color("${colors.minorTick}");
+
+      // Bottom Border of graph
+      ${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = new ScottPlot.Colors.Color("${colors.frameColor}");
+
+      // Major Grid
+      ${plotName}.Plot.Grid.MajorLineColor = new ScottPlot.Colors.Color("${colors.gridMajor}");
+
+      // Example for waveform (e.g., Signal):
+      // var myWave = ${plotName}.Plot.Add.Signal(yWaveData);
+      // myWave.Color = new ScottPlot.Colors.Color("${colors.waveColor}");
+      // Example for trend line (e.g., Line):
+      // var myTrend = ${plotName}.Plot.Add.Line(xTrend, yTrend);
+      // myTrend.Color = new ScottPlot.Colors.Color("${colors.trendColor}");`;
+      }
+
+      // Function to generate C# code
+      function generateCode() {
+        const selected = themeSelect.value;
+        const plotName = plotNameInput.value.trim() || "formsPlot1";
+        const colors = {
+          figBg: document.getElementById("figBg").value,
+          dataBg: document.getElementById("dataBg").value,
+          leftLabel: document.getElementById("leftLabel").value,
+          topLabel: document.getElementById("topLabel").value,
+          bottomLabel: document.getElementById("bottomLabel").value,
+          majorTick: document.getElementById("majorTick").value,
+          minorTick: document.getElementById("minorTick").value,
+          frameColor: document.getElementById("frameColor").value,
+          waveColor: document.getElementById("waveColor").value,
+          trendColor: document.getElementById("trendColor").value,
+          gridMajor: document.getElementById("gridMajor").value,
+        };
+
+        let code;
+        const isScottPlotPalette =
+          Object.keys(scottPlotPalettes).includes(selected);
+        const isCustomTheme = customThemes[selected];
+        if (isScottPlotPalette) {
+          const expected = getThemeColors(selected);
+          const matches = Object.keys(colors).every(
+            (key) => colors[key] === expected[key]
+          );
+          if (matches) {
+            const className = selected
+              .split("_")
+              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+              .join("");
+            code =
+              `var c_palette = new ScottPlot.Palettes.${className}();\n\n` +
+              `${plotName}.Plot.FigureBackground.Color = c_palette.Colors[0]; // The Whole Plot\n` +
+              `${plotName}.Plot.DataBackground.Color = c_palette.Colors[1]; // Inside the graph\n` +
+              `${plotName}.Plot.Axes.Left.Label.ForeColor = c_palette.Colors[2]; // Side Left\n` +
+              `${plotName}.Plot.Axes.Bottom.Label.ForeColor = c_palette.Colors[3]; // bottom\n` +
+              `${plotName}.Plot.Axes.Title.Label.ForeColor = c_palette.Colors[4]; // top heading\n` +
+              `${plotName}.Plot.Axes.Bottom.MajorTickStyle.Color = c_palette.Colors[5]; // Major Ticks\n` +
+              `${plotName}.Plot.Axes.Bottom.MinorTickStyle.Color = c_palette.Colors[6]; // Minor Ticks\n` +
+              `${plotName}.Plot.Axes.Bottom.FrameLineStyle.Color = c_palette.Colors[7]; // Bottom Border of graph\n` +
+              `${plotName}.Plot.Grid.MajorLineColor = c_palette.Colors[8]; // Major Grid\n` +
+              `// Example for waveform (e.g., Signal):\n` +
+              `// var myWave = ${plotName}.Plot.Add.Signal(yWaveData);\n` +
+              `// myWave.Color = c_palette.Colors[8];\n` +
+              `// Example for trend line (e.g., Line):\n` +
+              `// var myTrend = ${plotName}.Plot.Add.Line(xTrend, yTrend);\n` +
+              `// myTrend.Color = c_palette.Colors[9];`;
+          } else {
+            code = generateDirectCode(colors, plotName);
+          }
+        } else if (isCustomTheme) {
+          code = generateDirectCode(colors, plotName); // For customs, use direct
+        } else {
+          code = generateDirectCode(colors, plotName);
+        }
+        codeOutput.value = code;
+      }
+
+      // Populate dropdown with predefined, custom, and palettes
+      function populateDropdown() {
+        themeSelect.innerHTML = "";
+        // Predefined
+        Object.keys(predefinedThemes).forEach((key) => {
+          const option = document.createElement("option");
+          option.value = key;
+          option.text = getDisplayName(key);
+          themeSelect.add(option);
+        });
+        // Custom separator and options
+        if (Object.keys(customThemes).length > 0) {
+          const customSep = document.createElement("option");
+          customSep.value = "";
+          customSep.text = "----- Custom Themes -----";
+          customSep.disabled = true;
+          themeSelect.add(customSep);
+          Object.keys(customThemes)
+            .sort()
+            .forEach((key) => {
+              const option = document.createElement("option");
+              option.value = key;
+              option.text = `${getDisplayName(key)} (Custom)`;
+              themeSelect.add(option);
+            });
+        }
+        // Palettes separator and options
+        const paletteSep = document.createElement("option");
+        paletteSep.value = "";
+        paletteSep.text = "----- ScottPlot Palettes -----";
+        paletteSep.disabled = true;
+        themeSelect.add(paletteSep);
+        Object.keys(scottPlotPalettes)
+          .sort()
+          .forEach((key) => {
+            const option = document.createElement("option");
+            option.value = key;
+            option.text = getDisplayName(key);
+            themeSelect.add(option);
+          });
+      }
+
+      // Delete selected custom theme
+      deleteThemeBtn.addEventListener("click", () => {
+        const selected = themeSelect.value;
+        if (!customThemes[selected]) {
+          alert("Selected theme is not a custom theme.");
+          return;
+        }
+        if (
+          confirm(
+            `Are you sure you want to delete the custom theme "${getDisplayName(
+              selected
+            )}"?`
+          )
+        ) {
+          delete customThemes[selected];
+          localStorage.setItem("customThemes", JSON.stringify(customThemes));
+          populateDropdown();
+          updateDeleteButtonState();
+          alert("Custom theme deleted!");
+          // Revert to light if deleted was selected
+          if (themeSelect.value === selected) {
+            themeSelect.value = "Dark";
+            themeSelect.dispatchEvent(new Event("change"));
+          }
+        }
+      });
+
+      // Update delete button state based on selection
+      function updateDeleteButtonState() {
+        const selected = themeSelect.value;
+        deleteThemeBtn.disabled = !customThemes[selected];
+      }
+
+      // Save current theme
+      saveThemeBtn.addEventListener("click", () => {
+        const name = customName.value.trim();
+        if (!name) {
+          alert("Please enter a theme name.");
+          return;
+        }
+        const colors = {
+          figBg: document.getElementById("figBg").value,
+          dataBg: document.getElementById("dataBg").value,
+          leftLabel: document.getElementById("leftLabel").value,
+          topLabel: document.getElementById("topLabel").value,
+          bottomLabel: document.getElementById("bottomLabel").value,
+          majorTick: document.getElementById("majorTick").value,
+          minorTick: document.getElementById("minorTick").value,
+          frameColor: document.getElementById("frameColor").value,
+          waveColor: document.getElementById("waveColor").value,
+          trendColor: document.getElementById("trendColor").value,
+          gridMajor: document.getElementById("gridMajor").value,
+        };
+        customThemes[name] = colors;
+        localStorage.setItem("customThemes", JSON.stringify(customThemes));
+        customName.value = "";
+        populateDropdown();
+        updateDeleteButtonState();
+        alert(`Theme "${name}" saved!`);
+      });
+
+      // Load example data
+      loadDataBtn.addEventListener("click", () => {
+        waveDataCache = generateWaveformData(getNumPoints());
+        draw();
+      });
+
+      // Density change listener
+      densitySelect.addEventListener("change", () => {
+        waveDataCache = generateWaveformData(getNumPoints());
+        draw();
+      });
+
+      // Event listeners
+      colorInputs.forEach((id) => {
+        document.getElementById(id).addEventListener("input", () => {
+          draw();
+          generateCode();
+        });
+      });
+
+      plotNameInput.addEventListener("input", generateCode);
+
+      themeSelect.addEventListener("change", (e) => {
+        const selected = e.target.value;
+        if (!selected) return; // Skip separator
+        const theme = getThemeColors(selected);
+        Object.keys(theme).forEach((key) => {
+          document.getElementById(key).value = theme[key];
+        });
+        updateThemePreview(selected);
+        updateDeleteButtonState();
+        draw();
+        generateCode();
+      });
+
+      function updateThemePreview(selected) {
+        const displayName = getDisplayName(selected);
+        const theme = getThemeColors(selected);
+        let labelTextColor = (color) =>
+          color === "#000000" || color === "#000" ? "#ffffff" : "#000000";
+        themePreview.innerHTML = `
+                      <strong>${displayName}:</strong><br>
+                      <div style="margin-top: 5px; font-size: 11px;">
+                          Fig Bg: <span class="swatch" style="background-color: ${
+                            theme.figBg
+                          };"></span><br>
+                          Data Bg: <span class="swatch" style="background-color: ${
+                            theme.dataBg
+                          };"></span><br>
+                          Left Label: <span class="text-swatch" style="color: ${
+                            theme.leftLabel
+                          }; background-color: ${labelTextColor(
+          theme.leftLabel
+        )};">L</span><br>
+                          Top Label: <span class="text-swatch" style="color: ${
+                            theme.topLabel
+                          }; background-color: ${labelTextColor(
+          theme.topLabel
+        )};">T</span><br>
+                          Bottom Label: <span class="text-swatch" style="color: ${
+                            theme.bottomLabel
+                          }; background-color: ${labelTextColor(
+          theme.bottomLabel
+        )};">B</span><br>
+                          Major Ticks: <span class="line-swatch" style="border-bottom-color: ${
+                            theme.majorTick
+                          };"></span><br>
+                          Minor Ticks: <span class="line-swatch" style="border-bottom-color: ${
+                            theme.minorTick
+                          };"></span><br>
+                          Frame Line: <span class="line-swatch" style="border-bottom-color: ${
+                            theme.frameColor
+                          }; width: 30px;"></span><br>
+                          Waveform: <span class="line-swatch" style="border-bottom-color: ${
+                            theme.waveColor
+                          }; width: 30px;"></span><br>
+                          Trend Line: <span class="line-swatch" style="border-bottom-color: ${
+                            theme.trendColor
+                          }; width: 30px;"></span><br>
+                          Major Grid: <span class="swatch" style="background-color: ${
+                            theme.gridMajor
+                          }; opacity: 0.5;"></span>
+                      </div>
+                  `;
+      }
+
+      // Generate ultra-detailed waveform data (tighter: 20k+ points, finer oscillations)
+      function generateWaveformData(numPoints = 20000) {
+        const x = [];
+        const y = [];
+        const dt = 10 / numPoints;
+        let t = 0;
+        for (let i = 0; i < numPoints; i++) {
+          x.push(t);
+          // Enhanced jaggedness: dual high-freq sines, stronger FM, tighter envelope, more noise bursts
+          const baseFreq1 = 30 + 120 * (t / 10); // Faster chirp
+          const baseFreq2 = baseFreq1 * 1.5; // Harmonic
+          const modFreq = Math.sin(2 * Math.PI * 3 * t) * 0.8; // Deeper modulation
+          const wave1 = Math.sin(
+            2 * Math.PI * baseFreq1 * t + modFreq * 2 * Math.PI
+          );
+          const wave2 = 0.3 * Math.sin(2 * Math.PI * baseFreq2 * t);
+          const envelope =
+            Math.exp(-0.15 * t) * (1 + 0.2 * Math.sin(2 * Math.PI * 0.1 * t)); // Tighter decay with ripple
+          const burstNoise =
+            Math.random() > 0.97 ? (Math.random() - 0.5) * 0.3 : 0; // More frequent spikes
+          const lowDrift = 0.08 * Math.sin(2 * Math.PI * 0.15 * t);
+          y.push(
+            Math.max(
+              -1,
+              Math.min(1, (wave1 + wave2) * envelope + lowDrift + burstNoise)
+            )
+          );
+          t += dt;
+        }
+        return { x, y };
+      }
+
+      // Generate trend line data
+      function generateTrendData() {
+        return {
+          x: [0, 10],
+          y: [0.9, -0.4], // Steeper slope for drama
+        };
+      }
+
+      function draw() {
+        // Retrieve current colors
+        const figBg = document.getElementById("figBg").value;
+        const dataBg = document.getElementById("dataBg").value;
+        const leftLabel = document.getElementById("leftLabel").value;
+        const topLabel = document.getElementById("topLabel").value;
+        const bottomLabel = document.getElementById("bottomLabel").value;
+        const majorTick = document.getElementById("majorTick").value;
+        const minorTick = document.getElementById("minorTick").value;
+        const frameColor = document.getElementById("frameColor").value;
+        const waveColor = document.getElementById("waveColor").value;
+        const trendColor = document.getElementById("trendColor").value;
+        const gridMajor = document.getElementById("gridMajor").value;
+
+        // Fill backgrounds
+        ctx.fillStyle = figBg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const marginLeft = 80,
+          marginRight = 50,
+          marginTop = 50,
+          marginBottom = 80;
+        const plotX = marginLeft,
+          plotY = marginTop;
+        const plotWidth = canvas.width - marginLeft - marginRight;
+        const plotHeight = canvas.height - marginTop - marginBottom;
+        ctx.fillStyle = dataBg;
+        ctx.fillRect(plotX, plotY, plotWidth, plotHeight);
+
+        // Scales
+        const xMin = 0,
+          xMax = 10,
+          yMin = -1,
+          yMax = 1;
+        const xScale = plotWidth / (xMax - xMin),
+          yScale = plotHeight / (yMax - yMin);
+
+        // Grids (major only for perf)
+        ctx.strokeStyle = gridMajor;
+        ctx.lineWidth = 1;
+        for (let i = 1; i < 10; i++) {
+          // Vertical
+          const x = plotX + i * xScale;
+          ctx.beginPath();
+          ctx.moveTo(x, plotY);
+          ctx.lineTo(x, plotY + plotHeight);
+          ctx.stroke();
+        }
+        for (let i = 1; i < 5; i++) {
+          // Horizontal
+          const yVal = yMin + 0.2 * i;
+          const y = plotY + plotHeight - (yVal - yMin) * yScale;
+          ctx.beginPath();
+          ctx.moveTo(plotX, y);
+          ctx.lineTo(plotX + plotWidth, y);
+          ctx.stroke();
+        }
+
+        // Axes & ticks (frame for axes, ticks separate)
+        ctx.strokeStyle = frameColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(plotX, plotY + plotHeight);
+        ctx.lineTo(plotX + plotWidth, plotY + plotHeight);
+        ctx.stroke(); // X
+        ctx.beginPath();
+        ctx.moveTo(plotX, plotY);
+        ctx.lineTo(plotX, plotY + plotHeight);
+        ctx.stroke(); // Y
+        ctx.strokeStyle = majorTick;
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 10; i++) {
+          // Bottom major ticks
+          const x = plotX + i * xScale;
+          ctx.beginPath();
+          ctx.moveTo(x, plotY + plotHeight);
+          ctx.lineTo(x, plotY + plotHeight + 6);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = minorTick;
+        for (let i = 0.5; i < 10; i += 0.5) {
+          // Bottom minor
+          const x = plotX + i * xScale;
+          ctx.beginPath();
+          ctx.moveTo(x, plotY + plotHeight);
+          ctx.lineTo(x, plotY + plotHeight + 3);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = majorTick;
+        for (let i = 0; i <= 4; i++) {
+          // Y major ticks (0.5 steps)
+          const yVal = yMin + 0.5 * i;
+          const y = plotY + plotHeight - (yVal - yMin) * yScale;
+          ctx.beginPath();
+          ctx.moveTo(plotX - 6, y);
+          ctx.lineTo(plotX, y);
+          ctx.stroke();
+        }
+
+        // Labels
+        ctx.font = "bold 14px Arial";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = leftLabel;
+        ctx.save();
+        ctx.translate(marginLeft / 2, plotY + plotHeight / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = "center";
+        ctx.fillText("Amplitude", 0, 0);
+        ctx.restore();
+        ctx.fillStyle = topLabel;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText("Intro Point", plotX + plotWidth / 2, plotY - 10);
+        ctx.fillStyle = bottomLabel;
+        ctx.textBaseline = "top";
+        ctx.fillText("Seconds", plotX + plotWidth / 2, plotY + plotHeight + 25);
+
+        // Tick labels
+        ctx.font = "12px Arial";
+        ctx.fillStyle = bottomLabel;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        for (let i = 0; i <= 10; i++) {
+          const x = plotX + i * xScale;
+          ctx.fillText(i.toString(), x, plotY + plotHeight + 15);
+        }
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        for (let i = 0; i <= 4; i++) {
+          const yVal = yMin + 0.5 * i;
+          const y = plotY + plotHeight - (yVal - yMin) * yScale;
+          ctx.fillText(yVal.toFixed(1), plotX - 15, y);
+        }
+
+        // Waveform (use cache, high-res, no subsampling for tightness)
+        if (waveDataCache.x.length === 0)
+          waveDataCache = generateWaveformData(getNumPoints());
+        ctx.strokeStyle = waveColor;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        let first = true;
+        for (let i = 0; i < waveDataCache.x.length; i++) {
+          const px = plotX + (waveDataCache.x[i] - xMin) * xScale;
+          const py = plotY + plotHeight - (waveDataCache.y[i] - yMin) * yScale;
+          if (first) {
+            ctx.moveTo(px, py);
+            first = false;
+          } else {
+            ctx.lineTo(px, py);
+          }
+        }
+        ctx.stroke();
+
+        // Trend line
+        const trendData = generateTrendData();
+        ctx.strokeStyle = trendColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(
+          plotX + (trendData.x[0] - xMin) * xScale,
+          plotY + plotHeight - (trendData.y[0] - yMin) * yScale
+        );
+        ctx.lineTo(
+          plotX + (trendData.x[1] - xMin) * xScale,
+          plotY + plotHeight - (trendData.y[1] - yMin) * yScale
+        );
+        ctx.stroke();
+        
+        /*
+        // Intro point (dashed vert + dot on trend)
+        const introX = 4,
+          introYTrend =
+            trendData.y[0] - (trendData.y[0] - trendData.y[1]) * (introX / 10);
+        const introPx = plotX + (introX - xMin) * xScale,
+          introPy = plotY + plotHeight - (introYTrend - yMin) * yScale;
+        ctx.strokeStyle = trendColor;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(introPx, introPy);
+        ctx.lineTo(introPx, plotY + plotHeight);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(introPx, introPy, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = trendColor;
+        ctx.fill();*/
+
+        // End marker (vert line + label)
+        const endX = 10,
+          endPx = plotX + (endX - xMin) * xScale;
+        ctx.strokeStyle = frameColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(endPx, plotY);
+        ctx.lineTo(endPx, plotY + plotHeight);
+        ctx.stroke();
+        ctx.fillStyle = bottomLabel;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("End", endPx + 20, plotY + plotHeight / 2);
+      }
+
+      // Initial setup
+      populateDropdown();
+      themeSelect.value = "Dark";
+      themeSelect.dispatchEvent(new Event("change"));
+
+      updateThemePreview("Dark");
+      updateDeleteButtonState();
+      waveDataCache = generateWaveformData(getNumPoints()); // Init data
+      draw();
+      generateCode();
+    </script>
+  </body>
+</html>
